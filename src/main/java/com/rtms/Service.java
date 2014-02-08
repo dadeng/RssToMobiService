@@ -12,7 +12,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -50,45 +52,55 @@ public class Service {
     public void launch() {
         URL[] parsingUrls = this.convertUrlStrsToURLObjs(feedLinkProvider.getFeedLinks());
         rssFeeds = this.parser.parse(parsingUrls);
-        boolean downloaded = this.downloadImages();
-        this.generateMobi(downloaded);
+        this.downloadImages();
+        this.generateMobi();
     }
 
     /**
      * download image
-     *
-     * @return if task has finished return true otherwise return false
      */
-    private boolean downloadImages() {
+    private void downloadImages() {
         ExecutorService pool = Executors.newFixedThreadPool(this.rssFeeds.length);
-        FutureTask<Boolean> futureTask = new FutureTask<Boolean>(new ImageDownloader(this.rssFeeds, this.configManager));
-        pool.execute(futureTask);
 
+        List<FutureTask<Boolean>> tasks = new ArrayList<FutureTask<Boolean>>(this.rssFeeds.length);
+        FutureTask<Boolean> futureTask = null;
+
+        for (BaseFeed feed : this.rssFeeds) {
+            futureTask = new FutureTask<Boolean>(new ImageDownloader(feed, this.configManager));
+            tasks.add(futureTask);
+            pool.submit(futureTask);
+        }
+
+        this.blockUntilDownloadFinish(tasks);
+    }
+
+    /**
+     * block download until finished
+     *
+     * @param tasks download tasks
+     */
+    private void blockUntilDownloadFinish(List<FutureTask<Boolean>> tasks) {
         try {
-            return futureTask.get();
+            for (FutureTask<Boolean> task : tasks) {
+                task.get();
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        return false;
     }
 
     /**
      * generate mobi file when image has beed download complete.
-     *
-     * @param imgDownloaded whether images has been download successfully
      */
-    private void generateMobi(Boolean imgDownloaded) {
-        if (!imgDownloaded) {
-            throw new RuntimeException("it occurs an error when download images ");
-        }
-
+    private void generateMobi() {
         this.generator = new MobiGenerator(this.configManager);
 
         String filePath = this.generator.generate(Arrays.asList(this.rssFeeds));
-        if (this.configManager.rtmsConfig().getProperty("rtms.enableMailService").equalsIgnoreCase("true")){
+        if (this.configManager.rtmsConfig().getProperty("rtms.enableMailService").equalsIgnoreCase("true")) {
             this.sendToKindle(filePath);
         }
 

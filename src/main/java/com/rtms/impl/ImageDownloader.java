@@ -27,12 +27,12 @@ public class ImageDownloader implements Callable<Boolean> {
 
     private Jedis jedis;
     private AbstractConfigManager configManager;
-    private BaseFeed[] feeds;
+    private BaseFeed feed;
     private boolean hasInited = false;
     private ImageTransporter imageTransporter;
 
-    public ImageDownloader(BaseFeed[] feeds, AbstractConfigManager configManager) {
-        this.feeds = feeds;
+    public ImageDownloader(BaseFeed feed, AbstractConfigManager configManager) {
+        this.feed = feed;
         this.configManager = configManager;
         this.imageTransporter = new ImageTransporter(this.configManager);
         this.init();
@@ -69,9 +69,7 @@ public class ImageDownloader implements Callable<Boolean> {
      * the main download method
      */
     private void downloadImg() {
-        for (BaseFeed feed : feeds) {
-            downloadImgWithFeed(feed);
-        }
+        downloadImgWithFeed(feed);
     }
 
     /**
