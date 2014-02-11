@@ -87,7 +87,7 @@ public class ImageDownloader implements Callable<Boolean> {
 
         for (Map.Entry<String, BaseImage> imageKVPair : images.entrySet()) {
             String currentImgPath = imageKVPair.getValue().getLocalPath();
-            logger.debug("downloadImgWithFeed local path is :" + imageKVPair.getValue().toString());
+            logger.debug("downloadImgWithFeed local path is :" + String.valueOf(imageKVPair.getValue()));
             boolean imgFileExists = helper.isPathExists(currentImgPath);
 
             if (imgFileExists) {
@@ -122,8 +122,9 @@ public class ImageDownloader implements Callable<Boolean> {
             return getBytesFromInputStram(is);
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+
+        return new byte[0];
     }
 
     /**
