@@ -27,7 +27,7 @@ public class FeedLinkProvider implements IFeedLinkProvider {
 
     @Override
     public String[] getFeedLinks() {
-        String[] feedLinksArr = null;
+        String[] feedLinksArr = new String[0];
 
         String feedLinkConfigFile = this.configManager.joinPathToConfigDir("feedlinks.txt");
 
@@ -37,7 +37,7 @@ public class FeedLinkProvider implements IFeedLinkProvider {
             feedLinksArr = new String[links.size()];
 
             for (int i = 0; i < links.size(); i++) {
-                feedLinksArr[i] = links.get(i).toString();
+                feedLinksArr[i] = String.valueOf(links.get(i));
                 logger.debug("feed link at line " + i + " is :" + feedLinksArr[i]);
             }
 
