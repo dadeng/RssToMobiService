@@ -46,8 +46,9 @@ public class MailSender implements IMailSender {
 
         /**
          * send mail
+         *
          * @param filePath the attachment file's full path
-         * @param config mail config file
+         * @param config   mail config file
          */
         public static void send(String filePath, final ConfigManager config) {
             Session session = Session.getInstance(config.mailConfig(), new Authenticator() {

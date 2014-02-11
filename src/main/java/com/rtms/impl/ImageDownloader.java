@@ -95,7 +95,7 @@ public class ImageDownloader implements Callable<Boolean> {
             }
 
             byte[] imgData = downloadImageWithUrl(imageKVPair.getValue().getSrc());
-            if (imgData != null) {
+            if (!ArrayUtils.isEmpty(imgData)) {
                 writeImgDataToFile(imgData, imageKVPair.getValue());
             }
 
@@ -112,6 +112,7 @@ public class ImageDownloader implements Callable<Boolean> {
      * @return the array of image's byte
      */
     private byte[] downloadImageWithUrl(String urlStr) {
+        byte[] result = null;
         try {
             URL imgUrl = new URL(urlStr);
             HttpURLConnection conn = (HttpURLConnection) imgUrl.openConnection();
@@ -119,12 +120,12 @@ public class ImageDownloader implements Callable<Boolean> {
             conn.setConnectTimeout(5 * 1000);
             InputStream is = conn.getInputStream();
 
-            return getBytesFromInputStram(is);
+            result = getBytesFromInputStram(is);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return new byte[0];
+        return result == null ? new byte[0] : result;
     }
 
     /**

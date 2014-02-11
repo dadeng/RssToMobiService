@@ -1,3 +1,9 @@
 http://9.douban.com/rss/culture
 http://9.douban.com/rss/life
+http://9.douban.com/rss/fun
+http://9.douban.com/rss/technology
+http://book.douban.com/feed/review/book
+http://movie.douban.com/feed/review/movie
+http://www.douban.com/feed/group/classicreading/discussion
+http://music.douban.com/feed/review/music_latest
 http://coolshell.cn/feed/

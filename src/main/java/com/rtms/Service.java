@@ -8,6 +8,7 @@ import com.rtms.core.contract.IMobiGenerator;
 import com.rtms.core.contract.IRSSParser;
 import com.rtms.impl.*;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.log4j.Logger;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,6 +29,8 @@ import java.util.concurrent.FutureTask;
  * Copyright (c) 2013 yanghua. All rights reserved.
  */
 public class Service {
+
+    private static final Logger logger = Logger.getLogger(Service.class);
 
     private BaseFeed[] rssFeeds;
 
@@ -50,12 +53,17 @@ public class Service {
      * launch it!
      */
     public void launch() {
+        long startTime = System.currentTimeMillis();
         URL[] parsingUrls = this.convertUrlStrsToURLObjs(feedLinkProvider.getFeedLinks());
         this.rssFeeds = new BaseFeed[parsingUrls.length];
-        for (int i= 0; i < parsingUrls.length; i++){
+        for (int i = 0; i < parsingUrls.length; i++) {
             this.rssFeeds[i] = this.parser.parse(parsingUrls[i]);
         }
         this.downloadImages();
+
+        long endTime = System.currentTimeMillis();
+        logger.info("all time is:" + ((endTime - startTime) / 1000) + " seconds");
+
         this.generateMobi();
     }
 
@@ -175,7 +183,6 @@ public class Service {
     public static void main(String[] args) {
         Service service = new Service();
         service.launch();
-
     }
 
 }
