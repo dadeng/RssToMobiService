@@ -51,7 +51,10 @@ public class Service {
      */
     public void launch() {
         URL[] parsingUrls = this.convertUrlStrsToURLObjs(feedLinkProvider.getFeedLinks());
-        rssFeeds = this.parser.parse(parsingUrls);
+        this.rssFeeds = new BaseFeed[parsingUrls.length];
+        for (int i= 0; i < parsingUrls.length; i++){
+            this.rssFeeds[i] = this.parser.parse(parsingUrls[i]);
+        }
         this.downloadImages();
         this.generateMobi();
     }

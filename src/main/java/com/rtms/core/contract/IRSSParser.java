@@ -15,9 +15,9 @@ public interface IRSSParser {
     /**
      * parse feed with given urls
      *
-     * @param urls the URL Array
-     * @return the BaseFeed Array
+     * @param url the parsing URL
+     * @return the BaseFeed's instance
      */
-    BaseFeed[] parse(URL[] urls);
+    BaseFeed parse(URL urls);
 
 }

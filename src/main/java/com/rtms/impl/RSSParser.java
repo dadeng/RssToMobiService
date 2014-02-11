@@ -38,7 +38,7 @@ public class RSSParser implements IRSSParser {
 
     private static final Logger logger = Logger.getLogger(RSSParser.class);
 
-    private RSSFeed[] feeds;
+    private RSSFeed feed;
     private static String[] removeAttrs = {"class", "id", "title", "style", "width", "height", "onclick"};
     private static String[] removeTags = {"script", "object", "video", "embed", "iframe", "noscript", "style"};
     private static String[] imgExtends = {"jpg", "jpeg", "gif", "png", "bmp"};
@@ -63,21 +63,18 @@ public class RSSParser implements IRSSParser {
      * @return the instance of RSSFeed
      */
     @Override
-    public BaseFeed[] parse(URL[] urls) {
+    public BaseFeed parse(URL url) {
         boolean hasEntryThresholdConfig = this.configManager.rtmsConfig().getProperty("rtms.entryThreshold") != null;
         int entryThreshold = 5;
         if (hasEntryThresholdConfig) {
             entryThreshold = Integer.parseInt(this.configManager.rtmsConfig().getProperty("rtms.entryThreshold"));
         }
 
-        this.feeds = new RSSFeed[urls.length];
         SyndFeedInput input = new SyndFeedInput();
 
         try {
-            for (int i = 0; i < urls.length; i++) {
-                SyndFeed feed = input.build(new XmlReader(urls[i]));
-                this.feeds[i] = hasEntryThresholdConfig ? new RSSFeed(feed, entryThreshold) : new RSSFeed(feed);
-            }
+            SyndFeed feed = input.build(new XmlReader(url));
+            this.feed = hasEntryThresholdConfig ? new RSSFeed(feed, entryThreshold) : new RSSFeed(feed);
 
             this.initForFeed();
         } catch (IllegalArgumentException e) {
@@ -90,11 +87,9 @@ public class RSSParser implements IRSSParser {
             e.printStackTrace();
         }
 
-        for (RSSFeed feed : this.feeds) {
-            this.parseEntries(feed);
-        }
+        this.parseEntries(feed);
 
-        return this.feeds;
+        return this.feed;
     }
 
     /**
@@ -247,19 +242,16 @@ public class RSSParser implements IRSSParser {
      * @throws IOException
      */
     private void initForFeed() throws IOException {
-        for (RSSFeed feed : this.feeds) {
-            String feedLinkMD5Code = helper.getMD5Code(feed.getLink().getBytes());
-            String fullPath = this.configManager.joinPathToDataDir(feedLinkMD5Code);
-            boolean dirExists = helper.isPathExists(fullPath);
+        String feedLinkMD5Code = helper.getMD5Code(this.feed.getLink().getBytes());
+        String fullPath = this.configManager.joinPathToDataDir(feedLinkMD5Code);
+        boolean dirExists = helper.isPathExists(fullPath);
 
-            if (!dirExists) {
-                boolean success = new File(fullPath).mkdir();
-                if (!success) {
-                    throw new RuntimeException("create dir failed at path:" + fullPath);
-                }
+        if (!dirExists) {
+            boolean success = new File(fullPath).mkdir();
+            if (!success) {
+                throw new RuntimeException("create dir failed at path:" + fullPath);
             }
         }
-
     }
 
     /**
