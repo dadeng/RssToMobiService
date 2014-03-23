@@ -169,7 +169,8 @@ public class Service {
         redisConfig = new Properties();
         mailConfig = new Properties();
 
-        try {
+        try
+        {
             rtmsConfig.load(new FileInputStream(RTMS_PROPERTIES_PATH));
             redisConfig.load(new FileInputStream(REDIS_PROPERTIES_PATH));
             mailConfig.load(new FileInputStream(MAIL_PROPERTIES_PATH));
